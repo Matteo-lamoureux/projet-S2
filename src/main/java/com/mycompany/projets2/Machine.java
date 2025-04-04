@@ -9,5 +9,5 @@ package com.mycompany.projets2;
  * @author Amadou Coulibaly
  */
 public class Machine {
-    
+
 }
