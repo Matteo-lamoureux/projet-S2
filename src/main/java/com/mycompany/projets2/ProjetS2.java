@@ -11,7 +11,7 @@ package com.mycompany.projets2;
 public class ProjetS2 {
 
     public static void main(String[] args) {
-        System.out.println("bonjour");
+        System.out.println("caca");
    
     
     }
