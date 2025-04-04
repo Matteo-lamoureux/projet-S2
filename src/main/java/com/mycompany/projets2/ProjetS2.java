@@ -8,11 +8,11 @@ package com.mycompany.projets2;
  *
  * @author mlamoureux01
  */
-public class ProjetS2 {
 
-    public static void main(String[] args) {
-        System.out.println("t'es gay");
-   
-    
-    }
+public class ProjetS2 {
+     public static void main(String[] args) {
+ 
+     }
+     
 }
+     
