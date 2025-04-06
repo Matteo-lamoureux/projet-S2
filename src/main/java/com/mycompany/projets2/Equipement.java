@@ -11,3 +11,4 @@ package com.mycompany.projets2;
 public class Equipement {
     
 }
+
