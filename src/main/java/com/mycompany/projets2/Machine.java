@@ -73,6 +73,7 @@ public class Machine {
         this.duree = duree;
     }
 
+    
     @Override
     public String toString() {
         return "Machine{" +
