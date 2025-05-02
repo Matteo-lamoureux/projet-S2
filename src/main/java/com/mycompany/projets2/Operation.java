@@ -46,5 +46,6 @@ class Operation {
                 ", cout=" + cout + " euros" +
                 '}';
     }
+
 }
-m
+ 

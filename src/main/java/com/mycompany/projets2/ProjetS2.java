@@ -36,19 +36,27 @@ class InterfacePrincipale extends JFrame {
 
     public InterfacePrincipale(AtelierDeFabrication atelier) {
         this.atelier = atelier;
+        
+        FondPanel fond = new FondPanel("image/image.png");
+        fond.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // espace autour des boutons
+        setContentPane(fond);
+        
         setTitle("Atelier de Fabrication");
-        setSize(500, 200);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new FlowLayout());
 
+        
+        
+        
         JButton btnMachine = new JButton("Machine");
         JButton btnPoste = new JButton("Poste");
         JButton btnGamme = new JButton("Gamme");
         JButton btnOptimisation = new JButton("Optimisation");
         JButton btnFiabilite = new JButton("Fiabilité");
-btnFiabilite.addActionListener(e -> {
-    List<Evenement> events = atelier.getEvenements(); // 🔁 Assure-toi que ça existe
+        
+        btnFiabilite.addActionListener(e -> {
+    List<Evenement> events = atelier.getEvenements();
     new FenetreFiabilite(atelier, events);
 });
 add(btnFiabilite);
