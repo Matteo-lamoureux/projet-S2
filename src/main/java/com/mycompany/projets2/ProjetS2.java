@@ -33,20 +33,19 @@ public class ProjetS2 {
 
 class InterfacePrincipale extends JFrame {
     private AtelierDeFabrication atelier;
+    private PanelAtelier panelAtelier;
 
     public InterfacePrincipale(AtelierDeFabrication atelier) {
         this.atelier = atelier;
         
-        FondPanel fond = new FondPanel("image/image.png");
-        fond.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // espace autour des boutons
-        setContentPane(fond);
+        
         
         setTitle("Atelier de Fabrication");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        
+        setLayout(new BorderLayout());
         
         
         JButton btnMachine = new JButton("Machine");
@@ -54,25 +53,47 @@ class InterfacePrincipale extends JFrame {
         JButton btnGamme = new JButton("Gamme");
         JButton btnOptimisation = new JButton("Optimisation");
         JButton btnFiabilite = new JButton("Fiabilité");
+        JButton btnEvenement = new JButton("Événements");
         
+        // Crée un panneau pour les boutons
+JPanel panelBoutons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+
+
+// Ajoute les boutons dedans
+panelBoutons.add(btnMachine);
+panelBoutons.add(btnPoste);
+panelBoutons.add(btnGamme);
+panelBoutons.add(btnOptimisation);
+panelBoutons.add(btnFiabilite);
+panelBoutons.add(btnEvenement);
+add(panelBoutons, BorderLayout.NORTH);
+
+         // === Image à gauche ===
+        JLabel imageLabel = new JLabel(new ImageIcon("image/image.png"));
+        imageLabel.setPreferredSize(new Dimension(250, 600));
+        add(imageLabel, BorderLayout.WEST);
+
+        // === PanelAtelier au centre ===
+        panelAtelier = new PanelAtelier(atelier);
+        add(panelAtelier, BorderLayout.CENTER);
+
+
         btnFiabilite.addActionListener(e -> {
     List<Evenement> events = atelier.getEvenements();
     new FenetreFiabilite(atelier, events);
 });
-add(btnFiabilite);
-JButton btnEvenement = new JButton("Événements");
+
+
 btnEvenement.addActionListener(e -> new FenetreEvenement(atelier));
-add(btnEvenement);
 
 
-        btnMachine.addActionListener(e -> new FenetreMachine(atelier));
+
+        btnMachine.addActionListener(e -> new FenetreMachine(atelier, panelAtelier));
+
         btnPoste.addActionListener(e -> new FenetrePoste(atelier));
         btnGamme.addActionListener(e -> new FenetreGamme(atelier));
 
-        add(btnMachine);
-        add(btnPoste);
-        add(btnGamme);
-        add(btnOptimisation);
+      
 
         setVisible(true);
     }
@@ -151,9 +172,11 @@ class FenetreEvenement extends JFrame {
 class FenetreMachine extends JFrame {
     private JTextField refField, desField, xField, yField, coutField, dureeField;
     private AtelierDeFabrication atelier;
+    private PanelAtelier panelAtelier;
 
-    public FenetreMachine(AtelierDeFabrication atelier) {
+    public FenetreMachine(AtelierDeFabrication atelier, PanelAtelier panelAtelier) {
         this.atelier = atelier;
+        this.panelAtelier = panelAtelier;
         setTitle("Machine");
         setSize(400, 350);
         setLayout(new GridLayout(8, 2));
@@ -199,6 +222,8 @@ class FenetreMachine extends JFrame {
             double duree = Double.parseDouble(dureeField.getText());
             Machine m = new Machine(ref, des, x, y, cout, duree);
             atelier.ajouterMachine(m);
+            panelAtelier.repaint();
+
             JOptionPane.showMessageDialog(this, "Machine ajoutée avec succès !");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Erreur de saisie : " + ex.getMessage());
