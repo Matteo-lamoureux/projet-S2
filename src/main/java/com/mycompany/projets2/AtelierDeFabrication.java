@@ -3,7 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.projets2;
-
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 import java.io.File;
 import java.time.Duration;
 import java.util.*;
@@ -78,38 +79,58 @@ public class AtelierDeFabrication {
     }
 
     public Map<String, Double> calculerFiabilites(List<Evenement> events) {
-        Map<String, List<Evenement>> map = new HashMap<>();
-        for (Evenement e : events) {
-            map.computeIfAbsent(e.getMachine(), k -> new ArrayList<>()).add(e);
-        }
+    Map<String, List<Evenement>> map = new HashMap<>();
 
-        Map<String, Double> fiabilites = new HashMap<>();
-
-        for (String machine : map.keySet()) {
-            List<Evenement> liste = map.get(machine);
-            liste.sort(Comparator.comparing(Evenement::getDateTime));
-
-            long tempsFonctionnement = 0;
-            for (int i = 0; i < liste.size() - 1; i++) {
-                Evenement e1 = liste.get(i);
-                Evenement e2 = liste.get(i + 1);
-                if (e1.getType() == 'D' && e2.getType() == 'A') {
-                    long diff = Duration.between(e1.getDateTime(), e2.getDateTime()).toMinutes();
-                    tempsFonctionnement += diff;
-                }
-            }
-
-            long periodeTotale = Duration.between(
-                    liste.get(0).getDateTime(),
-                    liste.get(liste.size() - 1).getDateTime()
-            ).toMinutes();
-
-            double fiabilite = (periodeTotale == 0) ? 0 : (100.0 * tempsFonctionnement / periodeTotale);
-            fiabilites.put(machine, fiabilite);
-        }
-
-        return fiabilites;
+    // Regrouper les événements par machine
+    for (Evenement e : events) {
+        map.computeIfAbsent(e.getMachine(), k -> new ArrayList<>()).add(e);
     }
+
+    Map<String, Double> fiabilites = new HashMap<>();
+
+    // Calcul de la fiabilité par machine
+    for (String machine : map.keySet()) {
+        List<Evenement> liste = map.get(machine);
+        liste.sort(Comparator.comparing(Evenement::getDateTime));
+
+        long tempsFonctionnement = 0;
+        for (int i = 0; i < liste.size() - 1; i++) {
+            Evenement e1 = liste.get(i);
+            Evenement e2 = liste.get(i + 1);
+            if (e1.getType() == 'D' && e2.getType() == 'A') {
+                long diff = Duration.between(e1.getDateTime(), e2.getDateTime()).toMinutes();
+                tempsFonctionnement += diff;
+            }
+        }
+
+        long periodeTotale = Duration.between(
+            liste.get(0).getDateTime(),
+            liste.get(liste.size() - 1).getDateTime()
+        ).toMinutes();
+
+        double fiabilite = (periodeTotale == 0) ? 0 : (100.0 * tempsFonctionnement / periodeTotale);
+        fiabilites.put(machine, fiabilite);
+    }
+
+    // 🔽 Tri par fiabilité décroissante
+    Map<String, Double> fiabilitesTriees = fiabilites.entrySet().stream()
+        .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue,
+            (e1, e2) -> e1,
+            LinkedHashMap::new
+        ));
+
+    // 🔽 Affichage (dans la console par exemple)
+    System.out.println("Fiabilites triees par ordre décroissant :");
+    for (Map.Entry<String, Double> entry : fiabilitesTriees.entrySet()) {
+        System.out.printf("Machine: %s - Fiabilite: %.2f%%\n", entry.getKey(), entry.getValue());
+    }
+
+    return fiabilitesTriees;
+}
+
 }
 
 

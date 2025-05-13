@@ -350,7 +350,7 @@ class FenetreFiabilite extends JFrame {
 
         Map<String, Double> fiabilites = atelier.calculerFiabilites(events);
 
-        String[] colonnes = { "Machine", "Temps de fonctionnement (min)" };
+        String[] colonnes = { "Machine", "Pourcentage de fiabilité" };
         String[][] data = new String[fiabilites.size()][2];
         int i = 0;
         for (Map.Entry<String, Double> entry : fiabilites.entrySet()) {
