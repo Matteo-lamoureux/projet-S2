@@ -3,15 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.projets2;
-import java.util.*;
-/**
- *
- * @author matte
- */
+
 import java.io.File;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.time.LocalDateTime;
 
 public class AtelierDeFabrication {
     private List<Produit> produits;
@@ -20,7 +16,7 @@ public class AtelierDeFabrication {
     private List<Gamme> gammes;
     private List<Personne> operateurs;
     private List<Equipement> equipements;
-    private List<Evenement> evenements; // 🔥 Nouvelle liste d'événements
+    private List<Evenement> evenements;
 
     public AtelierDeFabrication() {
         produits = new ArrayList<>();
@@ -39,6 +35,7 @@ public class AtelierDeFabrication {
     public void ajouterGamme(Gamme g) { gammes.add(g); }
     public void ajouterOperateur(Personne o) { operateurs.add(o); }
     public void ajouterEquipement(Equipement e) { equipements.add(e); }
+    public void ajouterEvenement(Evenement e) { evenements.add(e); }
 
     // --- Accès ---
     public List<Produit> getProduits() { return produits; }
@@ -49,7 +46,7 @@ public class AtelierDeFabrication {
     public List<Equipement> getEquipements() { return equipements; }
     public List<Evenement> getEvenements() { return evenements; }
 
-    // --- Charger les événements depuis le fichier texte ---
+    // --- Chargement des événements ---
     public void chargerEvenements(String fichier) {
         evenements.clear();
         try (Scanner scanner = new Scanner(new File(fichier))) {
@@ -75,10 +72,14 @@ public class AtelierDeFabrication {
         }
     }
 
-    // --- Calculer les fiabilités de toutes les machines ---
+    // --- Fiabilité ---
     public Map<String, Double> calculerFiabilites() {
+        return calculerFiabilites(evenements);
+    }
+
+    public Map<String, Double> calculerFiabilites(List<Evenement> events) {
         Map<String, List<Evenement>> map = new HashMap<>();
-        for (Evenement e : evenements) {
+        for (Evenement e : events) {
             map.computeIfAbsent(e.getMachine(), k -> new ArrayList<>()).add(e);
         }
 
@@ -92,13 +93,12 @@ public class AtelierDeFabrication {
             for (int i = 0; i < liste.size() - 1; i++) {
                 Evenement e1 = liste.get(i);
                 Evenement e2 = liste.get(i + 1);
-                if (e1.getType() == 'A' && e2.getType() == 'D') {
+                if (e1.getType() == 'D' && e2.getType() == 'A') {
                     long diff = Duration.between(e1.getDateTime(), e2.getDateTime()).toMinutes();
                     tempsFonctionnement += diff;
                 }
             }
 
-            // Période totale = entre le 1er événement et le dernier
             long periodeTotale = Duration.between(
                     liste.get(0).getDateTime(),
                     liste.get(liste.size() - 1).getDateTime()
@@ -110,17 +110,8 @@ public class AtelierDeFabrication {
 
         return fiabilites;
     }
-
-    Map<String, Double> calculerFiabilites(List<Evenement> events) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-  
-    }
-    
-    public void ajouterEvenement(Evenement e) {
-    evenements.add(e);
 }
 
-}
 
 
 

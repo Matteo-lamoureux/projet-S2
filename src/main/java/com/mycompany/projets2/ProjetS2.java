@@ -51,7 +51,6 @@ class InterfacePrincipale extends JFrame {
         JButton btnMachine = new JButton("Machine");
         JButton btnPoste = new JButton("Poste");
         JButton btnGamme = new JButton("Gamme");
-        JButton btnOptimisation = new JButton("Optimisation");
         JButton btnFiabilite = new JButton("Fiabilité");
         JButton btnEvenement = new JButton("Événements");
         
@@ -63,7 +62,6 @@ JPanel panelBoutons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 panelBoutons.add(btnMachine);
 panelBoutons.add(btnPoste);
 panelBoutons.add(btnGamme);
-panelBoutons.add(btnOptimisation);
 panelBoutons.add(btnFiabilite);
 panelBoutons.add(btnEvenement);
 add(panelBoutons, BorderLayout.NORTH);
