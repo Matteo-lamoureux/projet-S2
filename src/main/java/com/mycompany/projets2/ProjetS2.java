@@ -8,7 +8,7 @@ package com.mycompany.projets2;
  *
  * @author mlamoureux01
  */
-
+import javax.swing.table.*;
 import java.util.Map;
 import javax.swing.*;
 import java.awt.*;
@@ -115,35 +115,96 @@ class FenetreEvenement extends JFrame {
 
     public FenetreEvenement(AtelierDeFabrication atelier) {
         this.atelier = atelier;
-        setTitle("Ajouter un événement");
-        setSize(400, 300);
-        setLayout(new GridLayout(7, 2));
-        setLocationRelativeTo(null);
 
-        dateField = new JTextField("");
-        heureField = new JTextField("");
-        machineField = new JTextField("");
-        operateurField = new JTextField("");
-        causeField = new JTextField("");
+        setTitle("Ajouter un événement");
+        setSize(450, 350);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(Color.WHITE);
+
+        // Titre bleu centré
+        JLabel titre = new JLabel("Ajouter un événement", JLabel.CENTER);
+        titre.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titre.setForeground(new Color(30, 136, 229));
+        titre.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+        mainPanel.add(titre, BorderLayout.NORTH);
+
+        // Formulaire 6 lignes x 2 colonnes
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel.setOpaque(false);
+
+        dateField = new JTextField();
+        dateField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        dateField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "jjmmaaaa");
+
+        heureField = new JTextField();
+        heureField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        heureField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "HH:mm");
+
+        machineField = new JTextField();
+        machineField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        operateurField = new JTextField();
+        operateurField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        causeField = new JTextField();
+        causeField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         typeBox = new JComboBox<>(new String[] { "D - Démarrage", "A - Arrêt" });
+        typeBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        add(new JLabel("Date (ddMMyyyy) :")); add(dateField);
-        add(new JLabel("Heure (HH:mm) :")); add(heureField);
-        add(new JLabel("Machine :")); add(machineField);
-        add(new JLabel("Opérateur :")); add(operateurField);
-        add(new JLabel("Cause :")); add(causeField);
-        add(new JLabel("Type :")); add(typeBox);
+        formPanel.add(new JLabel("Date (ddMMyyyy) :"));
+        formPanel.add(dateField);
 
-        JButton btnAjouter = new JButton("Ajouter");
-        JButton btnAfficher = new JButton("Afficher tous");
+        formPanel.add(new JLabel("Heure (HH:mm) :"));
+        formPanel.add(heureField);
+
+        formPanel.add(new JLabel("Machine :"));
+        formPanel.add(machineField);
+
+        formPanel.add(new JLabel("Opérateur :"));
+        formPanel.add(operateurField);
+
+        formPanel.add(new JLabel("Cause :"));
+        formPanel.add(causeField);
+
+        formPanel.add(new JLabel("Type :"));
+        formPanel.add(typeBox);
+
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Boutons centrés horizontalement
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        buttonPanel.setOpaque(false);
+
+        JButton btnAjouter = createStyledButton("Ajouter");
+        JButton btnAfficher = createStyledButton("Afficher tous");
 
         btnAjouter.addActionListener(e -> ajouterEvenement());
         btnAfficher.addActionListener(e -> afficherEvenements());
 
-        add(btnAjouter); add(btnAfficher);
+        buttonPanel.add(btnAjouter);
+        buttonPanel.add(btnAfficher);
 
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(mainPanel);
         setVisible(true);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setBackground(new Color(30, 136, 229));
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(130, 35));
+        button.putClientProperty(FlatClientProperties.STYLE,
+            "arc: 20; background: #1E88E5; foreground: white; font: bold 14px;");
+        return button;
     }
 
     private void ajouterEvenement() {
@@ -185,39 +246,120 @@ class FenetreMachine extends JFrame {
     public FenetreMachine(AtelierDeFabrication atelier, PanelAtelier panelAtelier) {
         this.atelier = atelier;
         this.panelAtelier = panelAtelier;
-        setTitle("Machine");
-        setSize(400, 350);
-        setLayout(new GridLayout(8, 2));
+
+        setTitle("Gestion des Machines");
+        setSize(450, 400);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        // Panel principal blanc avec marges
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(Color.WHITE);
+
+        // Titre centré bleu
+        JLabel titre = new JLabel("Gestion des Machines", JLabel.CENTER);
+        titre.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titre.setForeground(new Color(30, 136, 229));
+        titre.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+        mainPanel.add(titre, BorderLayout.NORTH);
+
+        // Formulaire en grid 6 lignes x 2 colonnes
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel.setOpaque(false);
+
+        JLabel refLabel = new JLabel("Référence:");
+        refLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refLabel.setForeground(Color.BLACK);
 
         refField = new JTextField();
+        refField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : M123");
+
+        JLabel desLabel = new JLabel("Désignation:");
+        desLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        desLabel.setForeground(Color.BLACK);
+
         desField = new JTextField();
+        desField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        desField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : Machine A");
+
+        JLabel xLabel = new JLabel("Abscisse:");
+        xLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        xLabel.setForeground(Color.BLACK);
+
         xField = new JTextField();
+        xField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        xField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : 100");
+
+        JLabel yLabel = new JLabel("Ordonnée:");
+        yLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        yLabel.setForeground(Color.BLACK);
+
         yField = new JTextField();
+        yField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        yField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : 200");
+
+        JLabel coutLabel = new JLabel("Coût Horaire:");
+        coutLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        coutLabel.setForeground(Color.BLACK);
+
         coutField = new JTextField();
+        coutField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        coutField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : 15.5");
+
+        JLabel dureeLabel = new JLabel("Durée:");
+        dureeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        dureeLabel.setForeground(Color.BLACK);
+
         dureeField = new JTextField();
+        dureeField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        dureeField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : 2.5");
 
-        add(new JLabel("Référence:")); add(refField);
-        add(new JLabel("Désignation:")); add(desField);
-        add(new JLabel("Abscisse:")); add(xField);
-        add(new JLabel("Ordonnée:")); add(yField);
-        add(new JLabel("Coût Horaire:")); add(coutField);
-        add(new JLabel("Durée:")); add(dureeField);
+        formPanel.add(refLabel); formPanel.add(refField);
+        formPanel.add(desLabel); formPanel.add(desField);
+        formPanel.add(xLabel); formPanel.add(xField);
+        formPanel.add(yLabel); formPanel.add(yField);
+        formPanel.add(coutLabel); formPanel.add(coutField);
+        formPanel.add(dureeLabel); formPanel.add(dureeField);
 
-        JButton btnCreer = new JButton("Créer");
-        JButton btnAfficher = new JButton("Afficher");
-        JButton btnModifier = new JButton("Modifier");
-        JButton btnSupprimer = new JButton("Supprimer");
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Panel boutons centrés horizontalement
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        buttonPanel.setOpaque(false);
+
+        JButton btnCreer = createStyledButton("Créer");
+        JButton btnAfficher = createStyledButton("Afficher");
+        JButton btnModifier = createStyledButton("Modifier");
+        JButton btnSupprimer = createStyledButton("Supprimer");
 
         btnCreer.addActionListener(e -> creerMachine());
         btnAfficher.addActionListener(e -> afficherMachines());
         btnModifier.addActionListener(e -> modifierMachine());
         btnSupprimer.addActionListener(e -> supprimerMachine());
 
-        add(btnCreer); add(btnAfficher);
-        add(btnModifier); add(btnSupprimer);
+        buttonPanel.add(btnCreer);
+        buttonPanel.add(btnAfficher);
+        buttonPanel.add(btnModifier);
+        buttonPanel.add(btnSupprimer);
 
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(mainPanel);
         setVisible(true);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setBackground(new Color(30, 136, 229));
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(100, 35));
+        button.putClientProperty(FlatClientProperties.STYLE,
+            "arc: 20; background: #1E88E5; foreground: white; font: bold 14px;");
+        return button;
     }
 
     private void creerMachine() {
@@ -228,6 +370,7 @@ class FenetreMachine extends JFrame {
             int y = Integer.parseInt(yField.getText());
             double cout = Double.parseDouble(coutField.getText());
             double duree = Double.parseDouble(dureeField.getText());
+
             Machine m = new Machine(ref, des, x, y, cout, duree);
             atelier.ajouterMachine(m);
             panelAtelier.repaint();
@@ -255,12 +398,12 @@ class FenetreMachine extends JFrame {
         String ref = JOptionPane.showInputDialog(this, "Entrez la référence de la machine à modifier :");
         for (Machine m : atelier.getMachines()) {
             if (m.getRefMachine().equals(ref)) {
+                refField.setText(m.getRefMachine());
                 desField.setText(m.getDmachine());
                 xField.setText(String.valueOf(m.getX()));
                 yField.setText(String.valueOf(m.getY()));
                 coutField.setText(String.valueOf(m.getCoutHoraire()));
                 dureeField.setText(String.valueOf(m.getDuree()));
-                creerMachine();
                 return;
             }
         }
@@ -274,37 +417,93 @@ class FenetreMachine extends JFrame {
     }
 }
 
+
 class FenetrePoste extends JFrame {
     private JTextField refField, desField;
     private AtelierDeFabrication atelier;
 
     public FenetrePoste(AtelierDeFabrication atelier) {
         this.atelier = atelier;
-        setTitle("Poste");
-        setSize(400, 250);
-        setLayout(new GridLayout(5, 2));
+
+        setTitle("Gestion des Postes");
+        setSize(450, 280);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        // Panel principal avec marge et fond blanc
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(Color.WHITE);
+
+        // Titre centré
+        JLabel titre = new JLabel("Gestion des Postes", JLabel.CENTER);
+        titre.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titre.setForeground(new Color(30, 136, 229));
+        titre.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+        mainPanel.add(titre, BorderLayout.NORTH);
+
+        // Formulaire avec labels et champs en grid 2 colonnes
+        JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        formPanel.setOpaque(false);
+
+        JLabel refLabel = new JLabel("Référence du poste:");
+        refLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refLabel.setForeground(Color.BLACK);
 
         refField = new JTextField();
+        refField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : P123");
+
+        JLabel desLabel = new JLabel("Désignation:");
+        desLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        desLabel.setForeground(Color.BLACK);
+
         desField = new JTextField();
+        desField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        desField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : Poste de montage");
 
-        add(new JLabel("Référence du poste:")); add(refField);
-        add(new JLabel("Désignation:")); add(desField);
+        formPanel.add(refLabel);
+        formPanel.add(refField);
+        formPanel.add(desLabel);
+        formPanel.add(desField);
 
-        JButton btnCreer = new JButton("Créer");
-        JButton btnAfficher = new JButton("Afficher");
-        JButton btnModifier = new JButton("Modifier");
-        JButton btnSupprimer = new JButton("Supprimer");
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Panel boutons horizontal avec espacement
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        buttonPanel.setOpaque(false);
+
+        JButton btnCreer = createStyledButton("Créer");
+        JButton btnAfficher = createStyledButton("Afficher");
+        JButton btnModifier = createStyledButton("Modifier");
+        JButton btnSupprimer = createStyledButton("Supprimer");
 
         btnCreer.addActionListener(e -> creerPoste());
         btnAfficher.addActionListener(e -> afficherPostes());
         btnModifier.addActionListener(e -> modifierPoste());
         btnSupprimer.addActionListener(e -> supprimerPoste());
 
-        add(btnCreer); add(btnAfficher);
-        add(btnModifier); add(btnSupprimer);
+        buttonPanel.add(btnCreer);
+        buttonPanel.add(btnAfficher);
+        buttonPanel.add(btnModifier);
+        buttonPanel.add(btnSupprimer);
 
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(mainPanel);
         setVisible(true);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setBackground(new Color(30, 136, 229));
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(100, 35));
+        button.putClientProperty(FlatClientProperties.STYLE,
+            "arc: 20; background: #1E88E5; foreground: white; font: bold 14px;");
+        return button;
     }
 
     private void creerPoste() {
@@ -315,7 +514,7 @@ class FenetrePoste extends JFrame {
             atelier.ajouterPoste(p);
             JOptionPane.showMessageDialog(this, "Poste créé !");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erreur: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage());
         }
     }
 
@@ -336,8 +535,8 @@ class FenetrePoste extends JFrame {
         String ref = JOptionPane.showInputDialog(this, "Référence du poste à modifier :");
         for (Poste p : atelier.getPostes()) {
             if (p.getRefPoste().equals(ref)) {
+                refField.setText(p.getRefPoste());
                 desField.setText(p.getDpost());
-                creerPoste();  // écrase avec les nouvelles valeurs
                 return;
             }
         }
@@ -351,16 +550,17 @@ class FenetrePoste extends JFrame {
     }
 }
 
-class FenetreFiabilite extends JFrame {
+
+ class FenetreFiabilite extends JFrame {
     public FenetreFiabilite(AtelierDeFabrication atelier, List<Evenement> events) {
-        setTitle("Fiabilité des machines");
-        setSize(400, 300);
+        setTitle("Fiabilité des Machines");
+        setSize(500, 350);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         Map<String, Double> fiabilites = atelier.calculerFiabilites(events);
 
-        String[] colonnes = { "Machine", "Pourcentage de fiabilité" };
+        String[] colonnes = { "Machine", "Fiabilité (%)" };
         String[][] data = new String[fiabilites.size()][2];
         int i = 0;
         for (Map.Entry<String, Double> entry : fiabilites.entrySet()) {
@@ -370,7 +570,27 @@ class FenetreFiabilite extends JFrame {
         }
 
         JTable table = new JTable(data, colonnes);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        table.setRowHeight(28);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(30, 136, 229));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setGridColor(new Color(220, 220, 220));
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JLabel titre = new JLabel("Fiabilité par machine", JLabel.CENTER);
+        titre.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titre.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        contentPanel.add(titre, BorderLayout.NORTH);
+
+        setContentPane(contentPanel);
         setVisible(true);
     }
 }
@@ -381,29 +601,76 @@ class FenetreGamme extends JFrame {
 
     public FenetreGamme(AtelierDeFabrication atelier) {
         this.atelier = atelier;
-        setTitle("Gamme");
-        setSize(400, 250);
-        setLayout(new GridLayout(4, 2));
+
+        setTitle("Gestion des Gammes");
+        setSize(450, 300);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        // Panel principal avec marge et fond blanc
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(Color.WHITE);
+
+        // Titre centré
+        JLabel titre = new JLabel("Gestion des Gammes", JLabel.CENTER);
+        titre.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titre.setForeground(new Color(30, 136, 229));
+        titre.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+        mainPanel.add(titre, BorderLayout.NORTH);
+
+        // Formulaire simple pour la référence
+        JPanel formPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        formPanel.setOpaque(false);
+
+        JLabel refLabel = new JLabel("Référence Gamme:");
+        refLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refLabel.setForeground(Color.BLACK);
+        
         refField = new JTextField();
+        refField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ex : G1234");
 
-        add(new JLabel("Référence Gamme:")); add(refField);
+        formPanel.add(refLabel);
+        formPanel.add(refField);
 
-        JButton btnCreer = new JButton("Créer");
-        JButton btnAfficher = new JButton("Afficher");
-        JButton btnModifier = new JButton("Modifier");
-        JButton btnSupprimer = new JButton("Supprimer");
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Panel boutons alignés horizontalement avec espacement
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        buttonPanel.setOpaque(false);
+
+        JButton btnCreer = createStyledButton("Créer");
+        JButton btnAfficher = createStyledButton("Afficher");
+        JButton btnModifier = createStyledButton("Modifier");
+        JButton btnSupprimer = createStyledButton("Supprimer");
 
         btnCreer.addActionListener(e -> creerGamme());
         btnAfficher.addActionListener(e -> afficherGammes());
         btnModifier.addActionListener(e -> modifierGamme());
         btnSupprimer.addActionListener(e -> supprimerGamme());
 
-        add(btnCreer); add(btnAfficher);
-        add(btnModifier); add(btnSupprimer);
+        buttonPanel.add(btnCreer);
+        buttonPanel.add(btnAfficher);
+        buttonPanel.add(btnModifier);
+        buttonPanel.add(btnSupprimer);
 
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        setContentPane(mainPanel);
         setVisible(true);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setBackground(new Color(30, 136, 229));
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(100, 35));
+        button.putClientProperty(FlatClientProperties.STYLE, 
+            "arc: 20; background: #1E88E5; foreground: white; font: bold 14px;");
+        return button;
     }
 
     private void creerGamme() {
@@ -435,9 +702,8 @@ class FenetreGamme extends JFrame {
         String ref = JOptionPane.showInputDialog(this, "Référence de la gamme à modifier :");
         for (Gamme g : atelier.getGammes()) {
             if (g.getRefGamme().equals(ref)) {
-                // Simplicité : on écrase juste pour cet exemple
                 refField.setText(g.getRefGamme());
-                creerGamme();
+                // Ici tu peux ajouter plus de champs/modifications si besoin
                 return;
             }
         }
@@ -450,6 +716,8 @@ class FenetreGamme extends JFrame {
         JOptionPane.showMessageDialog(this, "Gamme supprimée (si existait).");
     }
 }
+
+
 
 
 

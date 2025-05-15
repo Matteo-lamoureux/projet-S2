@@ -123,7 +123,7 @@ public class AtelierDeFabrication {
         ));
 
     
-    System.out.println("Fiabilites triees par ordre décroissant :");
+    System.out.println("Fiabilites triees par ordre decroissant :");
     for (Map.Entry<String, Double> entry : fiabilitesTriees.entrySet()) {
         System.out.printf("Machine: %s - Fiabilite: %.2f%%\n", entry.getKey(), entry.getValue());
     }
