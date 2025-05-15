@@ -16,6 +16,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
 import javax.swing.BorderFactory;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 public class PanelAtelier extends JPanel {
     private AtelierDeFabrication atelier;
@@ -24,7 +27,12 @@ public class PanelAtelier extends JPanel {
         this.atelier = atelier;
         setPreferredSize(new Dimension(600, 400)); // Taille du plan
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        // Ajoute un cadre noir + marge intérieure
+        setBorder(new CompoundBorder(
+            new LineBorder(Color.BLACK, 3, true),
+            new EmptyBorder(10, 10, 10, 10)
+        ));
     }
 
     @Override
@@ -35,28 +43,24 @@ public class PanelAtelier extends JPanel {
             int x = m.getX();
             int y = m.getY();
 
-            // Définir la couleur des machines en rouge
             g.setColor(Color.RED);
 
-            // Calculer la taille des points en fonction de la durée de la machine
-            int size = (int) (m.getDuree() / 5); // Diviser la durée par 5 pour une taille raisonnable
-            if (size < 10) size = 10;  // Taille minimale
-            if (size > 30) size = 30;  // Taille maximale
+            int size = (int) (m.getDuree() / 5);
+            if (size < 10) size = 10;
+            if (size > 30) size = 30;
 
-            // Choisir une forme différente en fonction de la durée de la machine
-            if (m.getDuree() < 50) {  // Durée courte => Carré
+            if (m.getDuree() < 50) {
                 g.fillRect(x - size / 2, y - size / 2, size, size);
-            } else if (m.getDuree() < 100) {  // Durée moyenne => Cercle
+            } else if (m.getDuree() < 100) {
                 g.fillOval(x - size / 2, y - size / 2, size, size);
-            } else {  // Durée longue => Triangle
+            } else {
                 int[] xPoints = {x, x - size / 2, x + size / 2};
                 int[] yPoints = {y - size / 2, y + size / 2, y + size / 2};
                 g.fillPolygon(xPoints, yPoints, 3);
             }
 
-            // Afficher le nom de la machine
-            g.setColor(Color.BLUE);  // Changer la couleur pour le texte
-            g.drawString(m.getDmachine(), x + size / 2, y);  // Afficher le nom près du point
+            g.setColor(Color.BLUE);
+            g.drawString(m.getDmachine(), x + size / 2, y);
         }
     }
 }

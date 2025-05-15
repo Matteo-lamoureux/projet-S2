@@ -112,7 +112,7 @@ public class AtelierDeFabrication {
         fiabilites.put(machine, fiabilite);
     }
 
-    // 🔽 Tri par fiabilité décroissante
+    
     Map<String, Double> fiabilitesTriees = fiabilites.entrySet().stream()
         .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
         .collect(Collectors.toMap(
@@ -122,7 +122,7 @@ public class AtelierDeFabrication {
             LinkedHashMap::new
         ));
 
-    // 🔽 Affichage (dans la console par exemple)
+    
     System.out.println("Fiabilites triees par ordre décroissant :");
     for (Map.Entry<String, Double> entry : fiabilitesTriees.entrySet()) {
         System.out.printf("Machine: %s - Fiabilite: %.2f%%\n", entry.getKey(), entry.getValue());

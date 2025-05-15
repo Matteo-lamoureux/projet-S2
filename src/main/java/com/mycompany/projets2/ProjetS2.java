@@ -14,12 +14,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.FlatClientProperties;
 
 public class ProjetS2 {
     public static void main(String[] args) {
-        // Appliquer un look moderne avec FlatLaf
         try {
-            UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
+            UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (Exception ex) {
             System.err.println("Failed to initialize LaF");
         }
@@ -37,63 +38,72 @@ class InterfacePrincipale extends JFrame {
 
     public InterfacePrincipale(AtelierDeFabrication atelier) {
         this.atelier = atelier;
-        
-        
-        
+
         setTitle("Atelier de Fabrication");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
         setLayout(new BorderLayout());
-        
-        
-        JButton btnMachine = new JButton("Machine");
-        JButton btnPoste = new JButton("Poste");
-        JButton btnGamme = new JButton("Gamme");
-        JButton btnFiabilite = new JButton("Fiabilité");
-        JButton btnEvenement = new JButton("Événements");
-        
-        // Crée un panneau pour les boutons
-JPanel panelBoutons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
+        // Couleurs et polices modernes
+        Color accentColor = new Color(30, 136, 229);
+        Font buttonFont = new Font("Segoe UI", Font.BOLD, 14);
 
-// Ajoute les boutons dedans
-panelBoutons.add(btnMachine);
-panelBoutons.add(btnPoste);
-panelBoutons.add(btnGamme);
-panelBoutons.add(btnFiabilite);
-panelBoutons.add(btnEvenement);
-add(panelBoutons, BorderLayout.NORTH);
+        JButton btnMachine = createStyledButton("Machine", accentColor, buttonFont);
+        JButton btnPoste = createStyledButton("Poste", accentColor, buttonFont);
+        JButton btnGamme = createStyledButton("Gamme", accentColor, buttonFont);
+        JButton btnFiabilite = createStyledButton("Fiabilité", accentColor, buttonFont);
+        JButton btnEvenement = createStyledButton("Événements", accentColor, buttonFont);
 
-         // === Image à gauche ===
-        JLabel imageLabel = new JLabel(new ImageIcon("image/image.png"));
+        JPanel panelBoutons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        panelBoutons.setBackground(new Color(245, 245, 245));
+        panelBoutons.add(btnMachine);
+        panelBoutons.add(btnPoste);
+        panelBoutons.add(btnGamme);
+        panelBoutons.add(btnFiabilite);
+        panelBoutons.add(btnEvenement);
+        add(panelBoutons, BorderLayout.NORTH);
+
+        // Image redimensionnée proprement
+        JLabel imageLabel = new JLabel();
+        ImageIcon icon = new ImageIcon("image/image.jpg");
+        Image img = icon.getImage().getScaledInstance(250, 600, Image.SCALE_SMOOTH);
+        imageLabel.setIcon(new ImageIcon(img));
         imageLabel.setPreferredSize(new Dimension(250, 600));
         add(imageLabel, BorderLayout.WEST);
 
-        // === PanelAtelier au centre ===
         panelAtelier = new PanelAtelier(atelier);
+        panelAtelier.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(panelAtelier, BorderLayout.CENTER);
 
-
         btnFiabilite.addActionListener(e -> {
-    List<Evenement> events = atelier.getEvenements();
-    new FenetreFiabilite(atelier, events);
-});
+            List<Evenement> events = atelier.getEvenements();
+            new FenetreFiabilite(atelier, events);
+        });
 
-
-btnEvenement.addActionListener(e -> new FenetreEvenement(atelier));
-
-
-
+        btnEvenement.addActionListener(e -> new FenetreEvenement(atelier));
         btnMachine.addActionListener(e -> new FenetreMachine(atelier, panelAtelier));
-
         btnPoste.addActionListener(e -> new FenetrePoste(atelier));
         btnGamme.addActionListener(e -> new FenetreGamme(atelier));
 
-      
-
         setVisible(true);
+    }
+
+    private JButton createStyledButton(String text, Color bgColor, Font font) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFont(font);
+        button.setPreferredSize(new Dimension(140, 40));
+        button.putClientProperty(FlatClientProperties.STYLE, 
+            "arc: 999; background: " + toHex(bgColor) + "; foreground: white; font: bold 14px;"
+        );
+        return button;
+    }
+
+    private String toHex(Color color) {
+        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 }
 
