@@ -8,6 +8,7 @@ package com.mycompany.projets2;
  *
  * @author mlamoureux01
  */
+import java.util.HashMap;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -176,25 +177,39 @@ class FenetreEvenement extends JFrame {
         mainPanel.add(formPanel, BorderLayout.CENTER);
 
         // Boutons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+
         buttonPanel.setOpaque(false);
 
         JButton btnAjouter = createStyledButton("Ajouter");
         JButton btnAfficher = createStyledButton("Afficher tous");
-        JButton btnExporter = createStyledButton("Exporter CSV");
+        
+        
+        JButton btnFiabilite = createStyledButton("Fiabilité");
+
 
         btnAjouter.addActionListener(e -> ajouterEvenement());
         btnAfficher.addActionListener(e -> afficherEvenements());
-        btnExporter.addActionListener(e -> exporterCSV());
+        
+        
+        btnFiabilite.addActionListener(e -> {
+    new FenetreFiabMinimaliste();  // Ouvre la fenêtre de calcul
+});
+
 
         buttonPanel.add(btnAjouter);
         buttonPanel.add(btnAfficher);
-        buttonPanel.add(btnExporter);
+        
+        
+        buttonPanel.add(btnFiabilite);
+
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         setContentPane(mainPanel);
         setVisible(true);
+
+
     }
 
     private JButton createStyledButton(String text) {
@@ -237,34 +252,7 @@ class FenetreEvenement extends JFrame {
         JOptionPane.showMessageDialog(this, sb.toString());
     }
 
-    private void exporterCSV() {
-        List<Evenement> events = atelier.getEvenements();
-        if (events.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Aucun événement à exporter.");
-            return;
-        }
-
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Exporter les événements");
-        chooser.setFileFilter(new FileNameExtensionFilter("Fichiers CSV", "csv"));
-
-        int userSelection = chooser.showSaveDialog(this);
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            String filePath = chooser.getSelectedFile().getAbsolutePath();
-            if (!filePath.endsWith(".csv")) filePath += ".csv";
-
-            try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-                writer.println("Date,Heure,Machine,Type,Opérateur,Cause");
-                for (Evenement ev : events) {
-                    writer.println(ev.toString());
-
-                }
-                JOptionPane.showMessageDialog(this, "Événements exportés avec succès !");
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Erreur lors de l'export : " + ex.getMessage());
-            }
-        }
-    }
+    
 }
 
 class FenetreMachine extends JFrame {
@@ -745,6 +733,55 @@ class FenetreGamme extends JFrame {
         JOptionPane.showMessageDialog(this, "Gamme supprimée (si existait).");
     }
 }
+    
+
+
+
+class FenetreFiabMinimaliste extends JFrame {
+
+    public FenetreFiabMinimaliste() {
+        setTitle("Test Bouton Fiabilité");
+        setSize(400, 300);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Panel principal en BorderLayout
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+        JButton btnCalculer = new JButton("Calculer fiabilité");
+        JTextArea zoneFiabilite = new JTextArea();
+        zoneFiabilite.setEditable(false);
+        JScrollPane scroll = new JScrollPane(zoneFiabilite);
+
+        panel.add(btnCalculer, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        btnCalculer.addActionListener(e -> {
+            // Simulation d'un calcul de fiabilité
+            Map<String, Double> fiabilites = new HashMap<>();
+            fiabilites.put("Machine A", 95.7);
+            fiabilites.put("Machine B", 88.2);
+            fiabilites.put("Machine C", 99.1);
+
+            StringBuilder sb = new StringBuilder();
+            for (Map.Entry<String, Double> entry : fiabilites.entrySet()) {
+                sb.append(String.format("Machine : %s - Fiabilité : %.2f%%\n", entry.getKey(), entry.getValue()));
+            }
+            zoneFiabilite.setText(sb.toString());
+        });
+
+        setContentPane(panel);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new FenetreFiabMinimaliste());
+    }
+}
+
+
+
 
 
 
