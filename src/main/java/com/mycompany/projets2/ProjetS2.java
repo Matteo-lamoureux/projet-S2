@@ -8,6 +8,10 @@ package com.mycompany.projets2;
  *
  * @author mlamoureux01
  */
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 import javax.swing.table.*;
 import java.util.Map;
 import javax.swing.*;
@@ -117,7 +121,7 @@ class FenetreEvenement extends JFrame {
         this.atelier = atelier;
 
         setTitle("Ajouter un événement");
-        setSize(450, 350);
+        setSize(450, 370);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -125,24 +129,24 @@ class FenetreEvenement extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         mainPanel.setBackground(Color.WHITE);
 
-        // Titre bleu centré
+        // Titre
         JLabel titre = new JLabel("Ajouter un événement", JLabel.CENTER);
         titre.setFont(new Font("Segoe UI", Font.BOLD, 18));
         titre.setForeground(new Color(30, 136, 229));
         titre.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
         mainPanel.add(titre, BorderLayout.NORTH);
 
-        // Formulaire 6 lignes x 2 colonnes
+        // Formulaire
         JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         formPanel.setOpaque(false);
 
         dateField = new JTextField();
         dateField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        dateField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "jjmmaaaa");
+        dateField.putClientProperty("JTextField.placeholderText", "jjmmaaaa");
 
         heureField = new JTextField();
         heureField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        heureField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "HH:mm");
+        heureField.putClientProperty("JTextField.placeholderText", "HH:mm");
 
         machineField = new JTextField();
         machineField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -158,36 +162,34 @@ class FenetreEvenement extends JFrame {
 
         formPanel.add(new JLabel("Date (ddMMyyyy) :"));
         formPanel.add(dateField);
-
         formPanel.add(new JLabel("Heure (HH:mm) :"));
         formPanel.add(heureField);
-
         formPanel.add(new JLabel("Machine :"));
         formPanel.add(machineField);
-
         formPanel.add(new JLabel("Opérateur :"));
         formPanel.add(operateurField);
-
         formPanel.add(new JLabel("Cause :"));
         formPanel.add(causeField);
-
         formPanel.add(new JLabel("Type :"));
         formPanel.add(typeBox);
 
         mainPanel.add(formPanel, BorderLayout.CENTER);
 
-        // Boutons centrés horizontalement
+        // Boutons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
         buttonPanel.setOpaque(false);
 
         JButton btnAjouter = createStyledButton("Ajouter");
         JButton btnAfficher = createStyledButton("Afficher tous");
+        JButton btnExporter = createStyledButton("Exporter CSV");
 
         btnAjouter.addActionListener(e -> ajouterEvenement());
         btnAfficher.addActionListener(e -> afficherEvenements());
+        btnExporter.addActionListener(e -> exporterCSV());
 
         buttonPanel.add(btnAjouter);
         buttonPanel.add(btnAfficher);
+        buttonPanel.add(btnExporter);
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -202,8 +204,6 @@ class FenetreEvenement extends JFrame {
         button.setBackground(new Color(30, 136, 229));
         button.setForeground(Color.WHITE);
         button.setPreferredSize(new Dimension(130, 35));
-        button.putClientProperty(FlatClientProperties.STYLE,
-            "arc: 20; background: #1E88E5; foreground: white; font: bold 14px;");
         return button;
     }
 
@@ -235,6 +235,35 @@ class FenetreEvenement extends JFrame {
             sb.append(ev.toString()).append("\n");
         }
         JOptionPane.showMessageDialog(this, sb.toString());
+    }
+
+    private void exporterCSV() {
+        List<Evenement> events = atelier.getEvenements();
+        if (events.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Aucun événement à exporter.");
+            return;
+        }
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Exporter les événements");
+        chooser.setFileFilter(new FileNameExtensionFilter("Fichiers CSV", "csv"));
+
+        int userSelection = chooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            String filePath = chooser.getSelectedFile().getAbsolutePath();
+            if (!filePath.endsWith(".csv")) filePath += ".csv";
+
+            try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+                writer.println("Date,Heure,Machine,Type,Opérateur,Cause");
+                for (Evenement ev : events) {
+                    writer.println(ev.toString());
+
+                }
+                JOptionPane.showMessageDialog(this, "Événements exportés avec succès !");
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Erreur lors de l'export : " + ex.getMessage());
+            }
+        }
     }
 }
 

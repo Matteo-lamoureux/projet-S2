@@ -33,6 +33,7 @@ public class PanelAtelier extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         int width = getWidth();
         int height = getHeight();
         int margin = 10;
@@ -47,6 +48,7 @@ public class PanelAtelier extends JPanel {
         Color windowColor = new Color(100, 180, 255);
         Color floorColor = new Color(240, 240, 240);
         Color storageColor = new Color(200, 200, 200);
+        Color furnitureColor = new Color(150, 111, 51); // Bois marron clair
 
         // FOND
         g.setColor(floorColor);
@@ -64,7 +66,7 @@ public class PanelAtelier extends JPanel {
         g.fillRect(margin, margin, wallThickness, height - 2 * margin); // Gauche
         g.fillRect(width - margin - wallThickness, margin, wallThickness, height - 2 * margin); // Droite
 
-        // CLOISONS AVEC PORTES
+        // CLOISONS AVEC PORTES (séparations intérieures)
         int partitionX = width / 3;
         int partitionY = height / 2;
         int doorWidth = 40;
@@ -87,6 +89,48 @@ public class PanelAtelier extends JPanel {
         g.fillRect(partitionX, doorPosY - doorHeight / 2, wallThickness, doorHeight);
         g.setColor(wallColor);
         g.fillRect(partitionX, doorPosY + doorHeight / 2, wallThickness, height - margin - (doorPosY + doorHeight / 2));
+
+        // SALLE BUREAUX dédiée à droite
+        int officeX = 2 * width / 3 + margin;
+        int officeY = margin + wallThickness + 10;
+        int officeWidth = width / 3 - 2 * margin - wallThickness;
+        int officeHeight = height / 3;
+
+        // Murs salle bureaux
+        g.setColor(wallColor);
+        g.fillRect(officeX, officeY, officeWidth, wallThickness); // Haut
+        g.fillRect(officeX, officeY + officeHeight - wallThickness, officeWidth, wallThickness); // Bas
+        g.fillRect(officeX, officeY, wallThickness, officeHeight); // Gauche
+        g.fillRect(officeX + officeWidth - wallThickness, officeY, wallThickness, officeHeight); // Droite
+
+        // Porte salle bureaux sur cloison gauche
+        int doorOfficeX = officeX;
+        int doorOfficeY = officeY + officeHeight / 2 - doorHeight / 2;
+        g.setColor(doorColor);
+        g.fillRect(doorOfficeX, doorOfficeY, wallThickness, doorHeight);
+
+        // Placer plusieurs bureaux dans la salle bureaux
+        g.setColor(furnitureColor);
+        int deskWidth = 50;
+        int deskHeight = 30;
+        int space = 10;
+
+        int desksPerRow = 2;
+        int desksPerCol = 2;
+        int startX = officeX + wallThickness + space;
+        int startY = officeY + wallThickness + space;
+
+        for (int row = 0; row < desksPerCol; row++) {
+            for (int col = 0; col < desksPerRow; col++) {
+                int x = startX + col * (deskWidth + space);
+                int y = startY + row * (deskHeight + space);
+                g.fillRect(x, y, deskWidth, deskHeight);
+                g.setColor(Color.BLACK);
+                g.drawRect(x, y, deskWidth, deskHeight);
+                g.drawString("Bureau", x + 8, y + 18);
+                g.setColor(furnitureColor);
+            }
+        }
 
         // FENÊTRE
         g.setColor(windowColor);
@@ -131,5 +175,8 @@ public class PanelAtelier extends JPanel {
         }
     }
 }
+
+
+
 
 
