@@ -21,6 +21,15 @@ import java.awt.event.*;
 import java.util.List;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.FlatClientProperties;
+import java.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.util.List;
+import java.nio.file.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import javax.swing.border.EmptyBorder;
 
 public class ProjetS2 {
     public static void main(String[] args) {
@@ -185,7 +194,7 @@ class FenetreEvenement extends JFrame {
         JButton btnAfficher = createStyledButton("Afficher tous");
         
         
-        JButton btnFiabilite = createStyledButton("Fiabilité");
+        JButton btnFiabilite = createStyledButton("Fiabilité du doc");
 
 
         btnAjouter.addActionListener(e -> ajouterEvenement());
@@ -193,7 +202,7 @@ class FenetreEvenement extends JFrame {
         
         
         btnFiabilite.addActionListener(e -> {
-    new FenetreFiabMinimaliste();  // Ouvre la fenêtre de calcul
+        new FenetreFiabMinimaliste(); 
 });
 
 
@@ -736,18 +745,16 @@ class FenetreGamme extends JFrame {
     
 
 
-
 class FenetreFiabMinimaliste extends JFrame {
 
     public FenetreFiabMinimaliste() {
-        setTitle("Test Bouton Fiabilité");
+        setTitle("Bouton Fiabilité");
         setSize(400, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Panel principal en BorderLayout
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JButton btnCalculer = new JButton("Calculer fiabilité");
         JTextArea zoneFiabilite = new JTextArea();
@@ -758,28 +765,191 @@ class FenetreFiabMinimaliste extends JFrame {
         panel.add(scroll, BorderLayout.CENTER);
 
         btnCalculer.addActionListener(e -> {
-            // Simulation d'un calcul de fiabilité
-            Map<String, Double> fiabilites = new HashMap<>();
-            fiabilites.put("Machine A", 95.7);
-            fiabilites.put("Machine B", 88.2);
-            fiabilites.put("Machine C", 99.1);
+            try {
+                List<MachineEvent> evenements = chargerEvenements("C:\\Users\\matte\\Desktop\\projet-S2\\src\\main\\java\\texte.txt");
+                Map<String, Map<LocalDate, Double>> fiabilites = calculerFiabilitesParJour(evenements);
 
-            StringBuilder sb = new StringBuilder();
-            for (Map.Entry<String, Double> entry : fiabilites.entrySet()) {
-                sb.append(String.format("Machine : %s - Fiabilité : %.2f%%\n", entry.getKey(), entry.getValue()));
+                StringBuilder sb = new StringBuilder();
+                for (String machine : fiabilites.keySet()) {
+                    sb.append("Machine: ").append(machine).append("\n");
+                    Map<LocalDate, Double> fiabParJour = fiabilites.get(machine);
+                    List<LocalDate> jours = new ArrayList<>(fiabParJour.keySet());
+                    jours.sort(Comparator.reverseOrder());
+
+                    if (fiabParJour.isEmpty()) {
+                        sb.append("  Pas assez de données pour calculer la fiabilité.\n\n");
+                        continue;
+                    }
+
+                    boolean peutCalculer = true;
+                    // On vérifie si la machine a au moins un redémarrage (D) après un arrêt (A)
+                    if (!aRedemarrage(evenements, machine)) {
+                        peutCalculer = false;
+                    }
+
+                    if (!peutCalculer) {
+                        sb.append("  On ne peut pas calculer la fiabilité de cette machine.\n\n");
+                        continue;
+                    }
+
+                    for (LocalDate jour : jours) {
+                        sb.append(String.format("  %s - Fiabilité : %.2f%%\n", jour, fiabParJour.get(jour)));
+                    }
+
+                    if (machine.equals("Mach_5")) {
+                        double somme = 0;
+                        for (double v : fiabParJour.values()) {
+                            somme += v;
+                        }
+                        double moyenne = fiabParJour.isEmpty() ? 0 : somme / fiabParJour.size();
+                        sb.append(String.format("  Moyenne fiabilité (sur %d jour(s)) : %.2f%%\n", fiabParJour.size(), moyenne));
+                    }
+
+                    sb.append("\n");
+                }
+
+                zoneFiabilite.setText(sb.toString());
+
+            } catch (IOException ex) {
+                zoneFiabilite.setText("Erreur de lecture du fichier : " + ex.getMessage());
             }
-            zoneFiabilite.setText(sb.toString());
         });
 
         setContentPane(panel);
         setVisible(true);
     }
 
+    static class MachineEvent {
+        String nomMachine;
+        LocalDateTime dateHeure;
+        String typeEvenement;  // A ou D
+        String etat;           // panne, ok, accident, maintenance
+
+        public MachineEvent(String machine, LocalDateTime date, String typeEvt, String etat) {
+            this.nomMachine = machine;
+            this.dateHeure = date;
+            this.typeEvenement = typeEvt;
+            this.etat = etat.toLowerCase();
+        }
+    }
+
+    private List<MachineEvent> chargerEvenements(String nomFichier) throws IOException {
+        List<MachineEvent> liste = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy HH:mm");
+
+        List<String> lignes = Files.readAllLines(Paths.get(nomFichier));
+        for (String ligne : lignes) {
+            String[] parties = ligne.split(";");
+            if (parties.length >= 6) {
+                String dateStr = parties[0].trim() + " " + parties[1].trim();
+                LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
+                String machine = parties[2].trim();
+                String typeEvt = parties[3].trim(); // A ou D
+                String etat = parties[5].trim();
+                liste.add(new MachineEvent(machine, date, typeEvt, etat));
+            }
+        }
+        return liste;
+    }
+
+    private Map<String, Map<LocalDate, Double>> calculerFiabilitesParJour(List<MachineEvent> events) {
+        Map<String, List<MachineEvent>> parMachine = new HashMap<>();
+        for (MachineEvent e : events) {
+            parMachine.computeIfAbsent(e.nomMachine, k -> new ArrayList<>()).add(e);
+        }
+
+        Map<String, Map<LocalDate, Double>> fiabilitesFinales = new HashMap<>();
+        long dureeJour = Duration.ofHours(24).toMinutes();
+
+        for (String machine : parMachine.keySet()) {
+            List<MachineEvent> evts = parMachine.get(machine);
+            evts.sort(Comparator.comparing(evt -> evt.dateHeure));
+
+            List<Pair<LocalDateTime, LocalDateTime>> periodesArret = new ArrayList<>();
+            LocalDateTime debutArret = null;
+
+            for (MachineEvent evt : evts) {
+                if (evt.typeEvenement.equalsIgnoreCase("A")) {
+                    debutArret = evt.dateHeure;
+                } else if (evt.typeEvenement.equalsIgnoreCase("D") && debutArret != null) {
+                    periodesArret.add(new Pair<>(debutArret, evt.dateHeure));
+                    debutArret = null;
+                }
+            }
+
+            Set<LocalDate> joursAvecEvenements = new HashSet<>();
+            for (MachineEvent evt : evts) {
+                joursAvecEvenements.add(evt.dateHeure.toLocalDate());
+            }
+            List<LocalDate> joursTries = new ArrayList<>(joursAvecEvenements);
+
+            Map<LocalDate, Double> fiabilitesParJour = new HashMap<>();
+
+            for (LocalDate jour : joursTries) {
+                LocalDateTime debutJour = jour.atStartOfDay();
+                LocalDateTime finJour = jour.atTime(23, 59, 59, 999_999_999);
+
+                long dureeArretJour = 0;
+
+                for (Pair<LocalDateTime, LocalDateTime> arret : periodesArret) {
+                    LocalDateTime arretDebut = arret.first;
+                    LocalDateTime arretFin = arret.second;
+
+                    LocalDateTime start = arretDebut.isBefore(debutJour) ? debutJour : arretDebut;
+                    LocalDateTime end = arretFin.isAfter(finJour) ? finJour : arretFin;
+
+                    if (!end.isBefore(start)) {
+                        dureeArretJour += Duration.between(start, end).toMinutes();
+                    }
+                }
+
+                double fiabilite = 100.0 * (dureeJour - dureeArretJour) / dureeJour;
+                if (fiabilite < 0) fiabilite = 0;
+
+                fiabilitesParJour.put(jour, fiabilite);
+            }
+
+            fiabilitesFinales.put(machine, fiabilitesParJour);
+        }
+
+        return fiabilitesFinales;
+    }
+
+    // Vérifie si la machine a au moins un redémarrage (D) après un arrêt (A)
+    private boolean aRedemarrage(List<MachineEvent> events, String machine) {
+        List<MachineEvent> evts = new ArrayList<>();
+        for (MachineEvent e : events) {
+            if (e.nomMachine.equals(machine)) {
+                evts.add(e);
+            }
+        }
+        evts.sort(Comparator.comparing(evt -> evt.dateHeure));
+
+        boolean enArret = false;
+        for (MachineEvent evt : evts) {
+            if (evt.typeEvenement.equalsIgnoreCase("A")) {
+                enArret = true;
+            } else if (evt.typeEvenement.equalsIgnoreCase("D") && enArret) {
+                return true; // On a un redémarrage valide
+            }
+        }
+        return false; // Pas de redémarrage trouvé
+    }
+
+    static class Pair<F, S> {
+        F first;
+        S second;
+
+        Pair(F f, S s) {
+            first = f;
+            second = s;
+        }
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FenetreFiabMinimaliste());
+        SwingUtilities.invokeLater(FenetreFiabMinimaliste::new);
     }
 }
-
 
 
 

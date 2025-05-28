@@ -132,10 +132,6 @@ public class PanelAtelier extends JPanel {
             }
         }
 
-        // FENÊTRE
-        g.setColor(windowColor);
-        g.fillRect(width - margin - wallThickness, height / 4, wallThickness, 40);
-
         // ZONE DE STOCKAGE
         int storageX = width - 150;
         int storageY = height - 100;
